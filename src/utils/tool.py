@@ -14,10 +14,13 @@ import time
 import hashlib
 from uuid import uuid4
 from log import Logger
+from redis import from_url
+from config import REDIS as REDIS_URL
 
 
 logger = Logger("sys").getLogger
 err_logger = Logger("error").getLogger
+get_redis_connect = from_url(REDIS_URL)
 
 
 def md5(pwd):
@@ -57,8 +60,6 @@ def get_current_timestamp():
 
 def create_redis_engine(redis_url=None):
     """ 创建redis连接 """
-    from redis import from_url
-    from config import REDIS as REDIS_URL
     if not (redis_url or REDIS_URL):
         raise ValueError("No valid redis connection string")
     return from_url(redis_url or REDIS_URL)
