@@ -54,6 +54,9 @@ class V1ApiView(Resource):
         elif Action == "reduction":
             # 还原网址
             short_url = request.form.get("short_url")
+            if not short_url.startswith(request.url_root):
+                res = dict(code=-1, msg="Invalid short url domain name")
+                return dfr(res)
             res = reduction_url(short_url, parseUrl=True)
             if res["code"] == 0:
                 # 请求时的统计信息
