@@ -13,7 +13,7 @@ import json
 from flask import Blueprint, request, url_for
 from flask_restful import Api, Resource
 from apis.shorturl import shorten_url, reduction_url
-from utils.tool import gen_rediskey, get_current_timestamp, get_redis_connect, err_logger
+from utils.tool import gen_rediskey, get_current_timestamp, get_redis_connect, err_logger, dfr
 
 
 class V1ApiView(Resource):
@@ -49,7 +49,7 @@ class V1ApiView(Resource):
                     res = dict(code=-1, msg="System exception")
                 else:
                     res["data"]["short_url"] = url_for("index", shorten=res["data"]["shorten"], _external=True)
-            return res
+            return dfr(res)
 
         elif Action == "reduction":
             # 还原网址
@@ -64,16 +64,18 @@ class V1ApiView(Resource):
                     ctime=get_current_timestamp(),
                     short_url=short_url
                 )
-                COUNT_KEY = gen_rediskey("l", res["data"]["shorten"])
+                COUNT_KEY = gen_rediskey("pv", res["data"]["shorten"])
+                SHORTURL_KEY = gen_rediskey("s", res["data"]["shorten"])
                 GLOBAL_INFO_KEY = gen_rediskey("global")
                 pipe = get_redis_connect.pipeline()
                 pipe.hincrby(GLOBAL_INFO_KEY, "reduction", 1)
+                pipe.hset(SHORTURL_KEY, "ltime", get_current_timestamp())
                 pipe.rpush(COUNT_KEY, json.dumps(ACCESS_DATA))
                 try:
                     pipe.execute()
                 except Exception as e:
                     err_logger.warning(e, exc_info=True)
-            return res
+            return dfr(res)
 
 
 ApiBlueprint = Blueprint("api", __name__)

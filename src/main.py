@@ -22,7 +22,7 @@ import json
 from flask import Flask, request, jsonify, redirect, render_template
 from version import __version__
 from views import ApiBlueprint
-from utils.tool import err_logger, get_redis_connect, gen_rediskey, get_current_timestamp
+from utils.tool import err_logger, get_redis_connect, gen_rediskey, get_current_timestamp, dfr
 from apis.shorturl import reduction_url
 
 __author__ = 'staugur'
@@ -40,7 +40,7 @@ app.register_blueprint(ApiBlueprint, url_prefix="/api")
 @app.route("/<shorten>")
 def index(shorten):
     """主页路由，shorten是缩短的唯一标识字符串"""
-    res = reduction_url(shorten)
+    res = dfr(reduction_url(shorten))
     if res["code"] == 0:
         # 请求时的统计信息
         ACCESS_DATA = dict(
@@ -50,10 +50,12 @@ def index(shorten):
             ctime=get_current_timestamp(),
             shorten=shorten
         )
-        COUNT_KEY = gen_rediskey("l", shorten)
+        COUNT_KEY = gen_rediskey("pv", shorten)
+        SHORTURL_KEY = gen_rediskey("s", shorten)
         GLOBAL_INFO_KEY = gen_rediskey("global")
         pipe = get_redis_connect.pipeline()
         pipe.hincrby(GLOBAL_INFO_KEY, "reduction", 1)
+        pipe.hset(SHORTURL_KEY, "ltime", get_current_timestamp())
         pipe.rpush(COUNT_KEY, json.dumps(ACCESS_DATA))
         try:
             pipe.execute()

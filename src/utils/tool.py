@@ -103,3 +103,55 @@ def decode_b64(string):
         result *= 64
         result += table[string[i]]
     return result
+
+
+def parseAcceptLanguage(acceptLanguage, defaultLanguage="zh-CN"):
+    if not acceptLanguage:
+        return defaultLanguage
+    languages = acceptLanguage.split(",")
+    locale_q_pairs = []
+    for language in languages:
+        if language.split(";")[0] == language:
+            # no q => q = 1
+            locale_q_pairs.append((language.strip(), "1"))
+        else:
+            locale = language.split(";")[0].strip()
+            q = language.split(";")[1].split("=")[1]
+            locale_q_pairs.append((locale, q))
+    return sorted(locale_q_pairs, key=lambda x: x[-1], reverse=True)[0][0] or defaultLanguage
+
+
+def dfr(res, default='en-US'):
+    """定义前端返回，将res中msg字段转换语言
+    @param res dict: like {"msg": None, "success": False}, 英文格式
+    @param default str: 默认语言
+    """
+    try:
+        from flask import request
+        language = parseAcceptLanguage(request.cookies.get("locale", request.headers.get('Accept-Language', default)), default)
+        if language == "zh-Hans-CN":
+            language = "zh-CN"
+    except:
+        language = default
+    # 翻译转换字典库
+    trans = {
+        # 简体中文
+        "zh-CN": {
+            "Hello World": u"世界，你好",
+            "System storage exception": u"系统服务异常",
+            "System exception": u"系统异常",
+            "Invalid long_url": u"无效的长网址参数",
+            "Not found shorten url": u"未发现短网址",
+            "Invalid shorten url": u"无效的短网址",
+        },
+    }
+    if isinstance(res, dict) and not "en" in language:
+        if res.get("msg"):
+            msg = res["msg"]
+            try:
+                new = trans[language][msg]
+            except KeyError, e:
+                logger.warn(e)
+            else:
+                res["msg"] = new
+    return res
