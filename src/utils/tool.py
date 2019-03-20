@@ -136,7 +136,7 @@ def dfr(res, default='en-US'):
     # 翻译转换字典库
     trans = {
         # 简体中文
-        "zh-CN": {
+        "zh-cn": {
             "Hello World": u"世界，你好",
             "System storage exception": u"系统服务异常",
             "System exception": u"系统异常",
@@ -149,7 +149,7 @@ def dfr(res, default='en-US'):
         if res.get("msg"):
             msg = res["msg"]
             try:
-                new = trans[language][msg]
+                new = trans[language.lower()][msg]
             except KeyError, e:
                 logger.warn(e)
             else:

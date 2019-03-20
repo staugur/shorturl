@@ -69,7 +69,7 @@ class V1ApiView(Resource):
                 GLOBAL_INFO_KEY = gen_rediskey("global")
                 pipe = get_redis_connect.pipeline()
                 pipe.hincrby(GLOBAL_INFO_KEY, "reduction", 1)
-                pipe.hset(SHORTURL_KEY, "ltime", get_current_timestamp())
+                pipe.hset(SHORTURL_KEY, "atime", get_current_timestamp())
                 pipe.rpush(COUNT_KEY, json.dumps(ACCESS_DATA))
                 try:
                     pipe.execute()

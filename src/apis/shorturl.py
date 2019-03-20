@@ -40,6 +40,7 @@ def shorten_url(long_url):
             res.update(code=10002, msg="System exception")
         else:
             res.update(data=dict(shorten=encode_b64(sid)), code=0)
+            # 当前接口不完整，仍需要api端写入shorten哈希数据，包括创建时间、ip、agent等
     else:
         res.update(code=20001, msg="Invalid long_url")
     return res
@@ -56,6 +57,7 @@ def reduction_url(shorten_url_string, parseUrl=False):
         shorten_string = shorten_url_string.split("/")[-1] if parseUrl is True else shorten_url_string
         SHORTURL_KEY = gen_rediskey("s", shorten_string)
         try:
+            # 只有使用api接口post请求才是完整的，此处才有数据
             data = get_redis_connect.hgetall(SHORTURL_KEY)
         except RedisError:
             res.update(code=10001, msg="System storage exception")
