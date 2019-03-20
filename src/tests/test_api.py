@@ -38,6 +38,12 @@ class ApiTest(unittest.TestCase):
             rv3 = c.get("/" + shorten)
             assert "短网址已禁用" in rv3.data
 
+        with self.client as c:
+            rv = c.post("/api/v1/?Action=reduction", data=dict(short_url="http://invaild_short_url.com/xxx"))
+            res = rv.get_json()
+            self.assertEqual(res["code"], -1)
+            self.assertEqual(res["msg"], "Invalid short url domain name")
+
     def test_func_api(self):
         res = shorten_url("abc")
         self.assertEqual(res["code"], 20001)
