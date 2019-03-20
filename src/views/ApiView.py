@@ -28,8 +28,8 @@ class V1ApiView(Resource):
                 # 请求时的统计信息
                 SHORT_DATA = dict(
                     ip=request.headers.get('X-Real-Ip', request.remote_addr),
-                    agent=request.headers.get("User-Agent"),
-                    referer=request.headers.get('Referer'),
+                    agent=request.headers.get('User-Agent',''),
+                    referer=request.headers.get('Referer',''),
                     ctime=get_current_timestamp(),
                     etime=0,
                     status=1,
@@ -59,8 +59,8 @@ class V1ApiView(Resource):
                 # 请求时的统计信息
                 ACCESS_DATA = dict(
                     ip=request.headers.get('X-Real-Ip', request.remote_addr),
-                    agent=request.headers.get("User-Agent"),
-                    referer=request.headers.get('Referer'),
+                    agent=request.headers.get('User-Agent',''),
+                    referer=request.headers.get('Referer',''),
                     ctime=get_current_timestamp(),
                     short_url=short_url
                 )

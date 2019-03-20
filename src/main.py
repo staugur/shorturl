@@ -45,8 +45,8 @@ def index(shorten):
         # 请求时的统计信息
         ACCESS_DATA = dict(
             ip=request.headers.get('X-Real-Ip', request.remote_addr),
-            agent=request.headers.get("User-Agent"),
-            referer=request.headers.get('Referer'),
+            agent=request.headers.get('User-Agent',''),
+            referer=request.headers.get('Referer',''),
             ctime=get_current_timestamp(),
             shorten=shorten
         )
