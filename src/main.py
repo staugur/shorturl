@@ -45,8 +45,8 @@ def index(shorten):
         # 请求时的统计信息
         ACCESS_DATA = dict(
             ip=request.headers.get('X-Real-Ip', request.remote_addr),
-            agent=request.headers.get('User-Agent',''),
-            referer=request.headers.get('Referer',''),
+            agent=request.headers.get('User-Agent', ''),
+            referer=request.headers.get('Referer', ''),
             ctime=get_current_timestamp(),
             shorten=shorten
         )
@@ -85,6 +85,12 @@ def not_found(error=None):
 @app.errorhandler(403)
 def Permission_denied(error=None):
     return jsonify(dict(code=403, msg="Authentication failed, permission denied.")), 403
+
+
+@app.after_request
+def after_request(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 
 if __name__ == '__main__':
