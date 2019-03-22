@@ -48,7 +48,7 @@ class V1ApiView(Resource):
                     err_logger.error(e, exc_info=True)
                     res = dict(code=-1, msg="System exception")
                 else:
-                    res["data"]["short_url"] = url_for("index", shorten=res["data"]["shorten"], _external=True)
+                    res["data"]["short_url"] = url_for("go", shorten=res["data"]["shorten"], _external=True)
             return dfr(res)
 
         elif Action == "reduction":

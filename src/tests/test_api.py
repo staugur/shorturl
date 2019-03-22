@@ -12,7 +12,7 @@ class ApiTest(unittest.TestCase):
         app.config['TESTING'] = True
         self.client = app.test_client()
 
-    def test_errindex(self):
+    def test_page_go(self):
         rv = self.client.get("/xxxxxxx")
         assert "短网址错误" in rv.data
 

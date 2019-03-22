@@ -37,8 +37,14 @@ app = Flask(__name__)
 app.register_blueprint(ApiBlueprint, url_prefix="/api")
 
 
+@app.route("/")
+def index():
+    """首页跳转到开放平台"""
+    return redirect("https://open.saintic.com/openservice/Shorturl/", code=302)
+
+
 @app.route("/<shorten>")
-def index(shorten):
+def go(shorten):
     """主页路由，shorten是缩短的唯一标识字符串"""
     res = dfr(reduction_url(shorten))
     if res["code"] == 0:
@@ -65,9 +71,9 @@ def index(shorten):
             if res["data"]["status"] in (1, "1"):
                 return redirect(res["data"]["long_url"], code=302)
             else:
-                return render_template("index.html", title=u"短网址已禁用", keyword=u"禁用", msg=u"由于某些原因，您的短网址已经被系统禁用，您可以尝试解封或重新生成短网址！")
+                return render_template("go.html", title=u"短网址已禁用", keyword=u"禁用", msg=u"由于某些原因，您的短网址已经被系统禁用，您可以尝试解封或重新生成短网址！")
     else:
-        return render_template("index.html", title=u"短网址错误", keyword=res["code"], msg=res["msg"])
+        return render_template("go.html", title=u"短网址错误", keyword=res["code"], msg=res["msg"])
 
 
 @app.errorhandler(500)
