@@ -37,6 +37,13 @@ app = Flask(__name__)
 app.register_blueprint(ApiBlueprint, url_prefix="/api")
 
 
+# 添加模板上下文变量
+@app.context_processor
+def GlobalTemplateVariables():
+    data = {"Version": __version__, "Author": __author__, "Email": __email__}
+    return data
+
+
 @app.route("/")
 def index():
     """首页跳转到开放平台"""
