@@ -143,7 +143,8 @@ def dfr(res, default='en-US'):
             "Invalid long_url": u"无效的长网址参数",
             "Not found shorten url": u"未发现短网址",
             "Invalid shorten url": u"无效的短网址",
-            "Invalid short url domain name": u"无效的短网址域名"
+            "Invalid short url domain name": u"无效的短网址域名",
+            "Invalid long url domain name": u"无效的长网址域名",
         },
     }
     if isinstance(res, dict) and not "en" in language:

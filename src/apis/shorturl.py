@@ -53,7 +53,7 @@ def reduction_url(shorten_url_string, parseUrl=False):
     """
     res = dict(code=1, msg=None)
     checked = False if parseUrl is True and not url_check(shorten_url_string) else True
-    if checked:
+    if checked and shorten_url_string:
         shorten_string = shorten_url_string.split("/")[-1] if parseUrl is True else shorten_url_string
         SHORTURL_KEY = gen_rediskey("s", shorten_string)
         try:

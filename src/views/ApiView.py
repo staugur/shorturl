@@ -22,7 +22,10 @@ class V1ApiView(Resource):
         Action = request.args.get("Action")
         if Action == "shorten":
             # 缩短网址
-            long_url = request.form.get("long_url")
+            long_url = request.form.get("long_url") or ""
+            if long_url.startswith(request.url_root):
+                res = dict(code=-1, msg="Invalid long url domain name")
+                return dfr(res)
             res = shorten_url(long_url)
             if res["code"] == 0:
                 # 请求时的统计信息
@@ -53,7 +56,7 @@ class V1ApiView(Resource):
 
         elif Action == "reduction":
             # 还原网址
-            short_url = request.form.get("short_url")
+            short_url = request.form.get("short_url") or ""
             if not short_url.startswith(request.url_root):
                 res = dict(code=-1, msg="Invalid short url domain name")
                 return dfr(res)
