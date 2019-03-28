@@ -20,6 +20,7 @@ from config import REDIS as REDIS_URL
 
 logger = Logger("sys").getLogger
 err_logger = Logger("error").getLogger
+shorten_pat = re.compile(r'^[\w\_\#\s\:\.\-]{1,32}$')
 get_redis_connect = from_url(REDIS_URL)
 
 

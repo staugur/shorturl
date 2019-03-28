@@ -21,12 +21,13 @@ from redis.exceptions import RedisError
 GLOBAL_INFO_KEY = gen_rediskey("global")
 
 
-def shorten_url(long_url):
+def shorten_url(long_url, jid=None):
     """缩短URL::
         1. 校验URL
         2. 查询G_INFO，获取自增id
         3. 编码自增id生成缩短码
     :param: long_url: str: 有效的网址
+    :param: jid: str: 自定义跳转id
     :returns: dict:
     """
     res = dict(code=1, msg=None)
