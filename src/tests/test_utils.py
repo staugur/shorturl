@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from utils.tool import url_check, encode_b64, decode_b64, gen_rediskey
+from utils.tool import url_check, encode_b64, decode_b64, gen_rediskey, shorten_pat
 
 
 class UtilsTest(unittest.TestCase):
@@ -42,6 +42,27 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(gen_rediskey("a", "b"), "satic.shorturl:a:b")
         self.assertEqual(gen_rediskey(1, 2), "satic.shorturl:1:2")
 
+
+    def test_shorten_pat(self):
+        self.assertIsNone(shorten_pat.match("0"))
+        self.assertIsNone(shorten_pat.match("-"))
+        self.assertIsNone(shorten_pat.match("_"))
+        self.assertIsNone(shorten_pat.match("."))
+        self.assertIsNone(shorten_pat.match("#"))
+        self.assertIsNone(shorten_pat.match("%"))
+        self.assertIsNone(shorten_pat.match("*"))
+        self.assertIsNone(shorten_pat.match("a#"))
+        self.assertIsNone(shorten_pat.match("0@"))
+        self.assertIsNone(shorten_pat.match("B&"))
+        self.assertIsNone(shorten_pat.match("B"*33))
+        self.assertIsNone(shorten_pat.match("_,"))
+        self.assertIsNotNone(shorten_pat.match("a1"))
+        self.assertIsNotNone(shorten_pat.match("B2"))
+        self.assertIsNotNone(shorten_pat.match("SB"))
+        self.assertIsNotNone(shorten_pat.match("__"))
+        self.assertIsNotNone(shorten_pat.match("_-"))
+        self.assertIsNotNone(shorten_pat.match("_."))
+        self.assertIsNotNone(shorten_pat.match("c4"))
 
 if __name__ == '__main__':
     unittest.main()

@@ -12,27 +12,25 @@
 import re
 import time
 import hashlib
-from uuid import uuid4
 from log import Logger
 from redis import from_url
 from config import REDIS as REDIS_URL
+from redis.exceptions import RedisError
 
 
 logger = Logger("sys").getLogger
 err_logger = Logger("error").getLogger
-shorten_pat = re.compile(r'^[\w\_\#\s\:\.\-]{1,32}$')
+shorten_pat = re.compile(r'^[a-zA-Z\_][0-9a-zA-Z\_\.\-]{1,31}$')
 get_redis_connect = from_url(REDIS_URL)
 
 
 def md5(pwd):
+    """MD5"""
     return hashlib.md5(pwd).hexdigest()
 
 
-def gen_requestId():
-    return str(uuid4())
-
-
 def gen_rediskey(*args):
+    """生成Redis键前缀"""
     return "satic.shorturl:" + ":".join(map(str, args))
 
 
@@ -146,8 +144,13 @@ def dfr(res, default='en-US'):
             "Invalid shorten url": u"无效的短网址",
             "Invalid short url domain name": u"无效的短网址域名",
             "Invalid long url domain name": u"无效的长网址域名",
+            "Custom shortening code is illegal": u"自定义的缩短码不合法",
+            "Custom shortening code is existed": u"自定义的缩短码已存在",
         },
     }
+    # 此处后续建议改为按照code翻译，code固定含义：
+    # 10001 存储异常
+    # 10002 系统异常
     if isinstance(res, dict) and not "en" in language:
         if res.get("msg"):
             msg = res["msg"]
@@ -157,4 +160,31 @@ def dfr(res, default='en-US'):
                 logger.warn(e)
             else:
                 res["msg"] = new
+    return res
+
+
+def reduction_url(shorten_url_string, parseUrl=False):
+    """还原缩短的URL
+    :param: shorten_url_string: str: 缩短的url或唯一标识的字符串
+    :returns: dict
+    """
+    res = dict(code=1, msg=None)
+    checked = False if parseUrl is True and not url_check(shorten_url_string) else True
+    if checked and shorten_url_string:
+        shorten_string = shorten_url_string.split("/")[-1] if parseUrl is True else shorten_url_string
+        SHORTURL_KEY = gen_rediskey("s", shorten_string)
+        try:
+            data = get_redis_connect.hgetall(SHORTURL_KEY)
+        except RedisError:
+            res.update(code=10001, msg="System storage exception")
+        except Exception as e:
+            err_logger.error(e, exc_info=True)
+            res.update(code=10002, msg="System exception")
+        else:
+            if data and isinstance(data, dict) and "long_url" in data:
+                res.update(code=0, data=dict(long_url=data["long_url"], shorten=shorten_string, status=data["status"], safe=data["safe"], realname=data["realname"]))
+            else:
+                res.update(code=404, msg="Not found shorten url")
+    else:
+        res.update(code=20001, msg="Invalid shorten url")
     return res

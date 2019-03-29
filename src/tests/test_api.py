@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+from uuid import uuid4
 from main import app
-from utils.tool import url_check, gen_rediskey, get_redis_connect
-from apis.shorturl import shorten_url, reduction_url
+from utils.tool import url_check, gen_rediskey, get_redis_connect, reduction_url
 
 
 class ApiTest(unittest.TestCase):
@@ -44,18 +44,28 @@ class ApiTest(unittest.TestCase):
             self.assertEqual(res["code"], -1)
             self.assertEqual(res["msg"], "Invalid short url domain name")
 
+    def test_web_api_diy_short(self):
+        with self.client as c:
+            long_url = "https://hello.demo"
+
+            # right
+            jid = "diy_" + str(uuid4())[:16]
+            rv = c.post("/api/v1/?Action=shorten", data=dict(long_url=long_url, jid=jid))
+            data = rv.get_json()
+            shorten = data["data"]["shorten"]
+            short_url = data["data"]["short_url"]
+            self.assertIsInstance(data, dict)
+            self.assertEqual(data["code"], 0)
+            self.assertTrue(url_check(short_url))
+
+            # wrong
+            jid = "##"
+            rv = c.post("/api/v1/?Action=shorten", data=dict(long_url=long_url, jid=jid))
+            data = rv.get_json()
+            self.assertIsInstance(data, dict)
+            self.assertEqual(data["code"], 30001)
+
     def test_func_api(self):
-        res = shorten_url("abc")
-        self.assertEqual(res["code"], 20001)
-
-        long_url = "https://open.sainic.com"
-        res = shorten_url(long_url)
-        self.assertEqual(res["code"], 0)
-        shorten = res["data"]["shorten"]
-
-        res = reduction_url(shorten)
-        self.assertEqual(res["code"], 404)
-
         res = reduction_url("abc", parseUrl=True)
         self.assertEqual(res["code"], 20001)
 
