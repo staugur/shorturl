@@ -56,7 +56,7 @@ class V1ApiView(Resource):
                     shorten = jid if is_jid else encode_b64(sid)
                     # 由于自定义短网址存在，此处需要检测是否存在shorten，且GLOBAL_INFO_KEY中sid不能做减法
                     if get_redis_connect.exists(gen_rediskey("s", shorten)):
-                        res.update(code=30002, msg="Shortening code is existed")
+                        res.update(code=30002, msg="Shorten code is existed")
                         return dfr(res)
                     # 短网址hash键
                     SHORTURL_KEY = gen_rediskey("s", shorten)

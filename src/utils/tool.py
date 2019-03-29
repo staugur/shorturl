@@ -145,7 +145,8 @@ def dfr(res, default='en-US'):
             "Invalid short url domain name": u"无效的短网址域名",
             "Invalid long url domain name": u"无效的长网址域名",
             "Custom shortening code is illegal": u"自定义的缩短码不合法",
-            "Shortening code is existed": u"缩短码已存在",
+            "Shorten code is existed": u"缩短码已存在",
+            "Shorten code parameter illegal": u"缩短码参数非法",
         },
     }
     # 此处后续建议改为按照code翻译，code固定含义：
@@ -172,19 +173,23 @@ def reduction_url(shorten_url_string, parseUrl=False):
     checked = False if parseUrl is True and not url_check(shorten_url_string) else True
     if checked and shorten_url_string:
         shorten_string = shorten_url_string.split("/")[-1] if parseUrl is True else shorten_url_string
-        SHORTURL_KEY = gen_rediskey("s", shorten_string)
         try:
-            data = get_redis_connect.hgetall(SHORTURL_KEY)
-        except RedisError:
-            res.update(code=10001, msg="System storage exception")
-        except Exception as e:
-            err_logger.error(e, exc_info=True)
-            res.update(code=10002, msg="System exception")
+            SHORTURL_KEY = gen_rediskey("s", shorten_string)
+        except UnicodeEncodeError:
+            res.update(code=-1, msg="Shorten code parameter illegal")
         else:
-            if data and isinstance(data, dict) and "long_url" in data:
-                res.update(code=0, data=dict(long_url=data["long_url"], shorten=shorten_string, status=data["status"], safe=data["safe"], realname=data["realname"]))
+            try:
+                data = get_redis_connect.hgetall(SHORTURL_KEY)
+            except RedisError:
+                res.update(code=10001, msg="System storage exception")
+            except Exception as e:
+                err_logger.error(e, exc_info=True)
+                res.update(code=10002, msg="System exception")
             else:
-                res.update(code=404, msg="Not found shorten url")
+                if data and isinstance(data, dict) and "long_url" in data:
+                    res.update(code=0, data=dict(long_url=data["long_url"], shorten=shorten_string, status=data["status"], safe=data["safe"], realname=data["realname"]))
+                else:
+                    res.update(code=404, msg="Not found shorten url")
     else:
         res.update(code=20001, msg="Invalid shorten url")
     return res
