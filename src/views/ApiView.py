@@ -34,11 +34,7 @@ class V1ApiView(Resource):
                 is_jid = False
                 if jid:
                     if shorten_pat.match(jid):
-                        if get_redis_connect.exists(gen_rediskey("s", jid)):
-                            res.update(code=30002, msg="Custom shortening code is existed")
-                            return dfr(res)
-                        else:
-                            is_jid = True
+                        is_jid = True
                     else:
                         res.update(code=30001, msg="Custom shortening code is illegal")
                         return dfr(res)
@@ -58,6 +54,10 @@ class V1ApiView(Resource):
                 else:
                     # 生成缩短码
                     shorten = jid if is_jid else encode_b64(sid)
+                    # 由于自定义短网址存在，此处需要检测是否存在shorten，且GLOBAL_INFO_KEY中sid不能做减法
+                    if get_redis_connect.exists(gen_rediskey("s", shorten)):
+                        res.update(code=30002, msg="Shortening code is existed")
+                        return dfr(res)
                     # 短网址hash键
                     SHORTURL_KEY = gen_rediskey("s", shorten)
                     # 短网址hash值
@@ -87,13 +87,7 @@ class V1ApiView(Resource):
                     else:
                         res.update(data=dict(shorten=shorten, short_url=url_for("go", shorten=shorten, _external=True)), code=0)
                     finally:
-                        # 为节省sid，设置请求成功状态，如果此次处理未果，则把sid还原，即-1
-                        if res["code"] != 0:
-                            try:
-                                get_redis_connect.hincrby(GLOBAL_INFO_KEY, "sid", -1)
-                            except:
-                                pass
-                        else:
+                        if res["code"] == 0:
                             # 成功请求
                             uid = request.form.get("uid")
                             if uid:

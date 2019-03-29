@@ -145,7 +145,7 @@ def dfr(res, default='en-US'):
             "Invalid short url domain name": u"无效的短网址域名",
             "Invalid long url domain name": u"无效的长网址域名",
             "Custom shortening code is illegal": u"自定义的缩短码不合法",
-            "Custom shortening code is existed": u"自定义的缩短码已存在",
+            "Shortening code is existed": u"缩短码已存在",
         },
     }
     # 此处后续建议改为按照code翻译，code固定含义：
