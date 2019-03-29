@@ -93,6 +93,15 @@ class V1ApiView(Resource):
                                 get_redis_connect.hincrby(GLOBAL_INFO_KEY, "sid", -1)
                             except:
                                 pass
+                        else:
+                            # 成功请求
+                            uid = request.form.get("uid")
+                            if uid:
+                                try:
+                                    USER_KEY = gen_rediskey("u", uid)
+                                    get_redis_connect.sadd(USER_KEY, shorten)
+                                except:
+                                    pass
             else:
                 res.update(code=20001, msg="Invalid long_url")
             return dfr(res)
