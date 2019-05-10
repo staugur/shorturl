@@ -64,6 +64,7 @@ class V1ApiView(Resource):
                     SHORTURL_DATA = dict(
                         sid=sid,
                         jid=jid,
+                        shorten=shorten,
                         ip=request.headers.get('X-Real-Ip', request.remote_addr),
                         agent=request.headers.get('User-Agent', ''),
                         referer=request.headers.get('Referer', ''),
@@ -88,14 +89,20 @@ class V1ApiView(Resource):
                         res.update(data=dict(shorten=shorten, short_url=url_for("go", shorten=shorten, _external=True)), code=0)
                     finally:
                         if res["code"] == 0:
-                            # 成功请求
+                            # 写入总集合
+                            INDEX_SHORTEN_KEY = gen_rediskey("index")
+                            pipe = get_redis_connect.pipeline()
+                            pipe.sadd(INDEX_SHORTEN_KEY, shorten)
+                            # 写入uid集合
                             uid = request.form.get("uid")
-                            if uid:
-                                try:
-                                    USER_KEY = gen_rediskey("u", uid)
-                                    get_redis_connect.sadd(USER_KEY, shorten)
-                                except:
-                                    pass
+                            if uid and len(uid) == 22:
+                                USER_KEY = gen_rediskey("u", uid)
+                                pipe.sadd(USER_KEY, shorten)
+                            # 成功后的处理
+                            try:
+                                pipe.execute()
+                            except:
+                                pass
             else:
                 res.update(code=20001, msg="Invalid long_url")
             return dfr(res)
