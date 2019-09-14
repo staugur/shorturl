@@ -23,6 +23,9 @@ class V1ApiView(Resource):
         if Action == "shorten":
             # 缩短网址
             res = dict(code=1, msg=None)
+            # 暂停服务
+            res.update(msg="In the service adjustment, the short domain name is suspended")
+            return dfr(res)
             # 获取请求参数
             long_url = request.form.get("long_url") or ""
             jid = request.form.get("jid") or ""

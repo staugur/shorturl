@@ -147,6 +147,7 @@ def dfr(res, default='en-US'):
             "Custom shortening code is illegal": u"自定义的缩短码不合法",
             "Shorten code is existed": u"缩短码已存在",
             "Shorten code parameter illegal": u"缩短码参数非法",
+            "In the service adjustment, the short domain name is suspended": u"服务调整中，暂时不能生成短网址",
         },
     }
     # 此处后续建议改为按照code翻译，code固定含义：
