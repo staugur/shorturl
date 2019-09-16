@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from utils.tool import url_check, encode_b64, decode_b64, gen_rediskey, shorten_pat
+from utils.tool import url_check, decode_b64, gen_rediskey, shorten_pat, reduction_url
 
 
 class UtilsTest(unittest.TestCase):
@@ -12,26 +12,15 @@ class UtilsTest(unittest.TestCase):
         self.assertTrue(url_check("http://192.168.1.1"))
         self.assertTrue(url_check("http://192.168.1.2:8000"))
         self.assertFalse(url_check("http://demo."))
-        self.assertFalse(url_check("ftp://ftp.example.com"))
+        self.assertTrue(url_check("ftp://ftp.example.com"))
 
     def test_b64(self):
-        self.assertEqual(encode_b64(0), "0")
-        self.assertEqual(encode_b64(10), "a")
-        self.assertEqual(encode_b64(62), "-")
-        self.assertEqual(encode_b64(63), "_")
-        self.assertEqual(encode_b64(64), "10")
-
         self.assertEqual(decode_b64("0"), 0)
         self.assertEqual(decode_b64("a"), 10)
         self.assertEqual(decode_b64("-"), 62)
         self.assertEqual(decode_b64("_"), 63)
         self.assertEqual(decode_b64("10"), 64)
 
-        for n in range(0, 50):
-            self.assertEqual(n, decode_b64(encode_b64(n)))
-
-        self.assertRaises(TypeError, encode_b64, None)
-        self.assertRaises(ValueError, encode_b64, "string")
         self.assertRaises(TypeError, decode_b64, 0)
         self.assertRaises(TypeError, decode_b64, [])
         self.assertRaises(TypeError, decode_b64, None)
@@ -41,7 +30,6 @@ class UtilsTest(unittest.TestCase):
     def test_other(self):
         self.assertEqual(gen_rediskey("a", "b"), "satic.shorturl:a:b")
         self.assertEqual(gen_rediskey(1, 2), "satic.shorturl:1:2")
-
 
     def test_shorten_pat(self):
         self.assertIsNone(shorten_pat.match("0"))
@@ -63,6 +51,19 @@ class UtilsTest(unittest.TestCase):
         self.assertIsNotNone(shorten_pat.match("_-"))
         self.assertIsNotNone(shorten_pat.match("_."))
         self.assertIsNotNone(shorten_pat.match("c4"))
+
+    def test_func_api(self):
+        res = reduction_url("abc", parseUrl=True)
+        self.assertEqual(res["code"], 20001)
+
+        res = reduction_url("abc", parseUrl=False)
+        self.assertEqual(res["code"], 404)
+
+        res = reduction_url("http://abc.", parseUrl=True)
+        self.assertEqual(res["code"], 20001)
+
+        res = reduction_url("http://go.satic.io/xxxx", parseUrl=True)
+        self.assertEqual(res["code"], 404)
 
 if __name__ == '__main__':
     unittest.main()

@@ -38,13 +38,14 @@ def url_check(addr):
     """检测UrlAddr是否为有效格式，例如
     http://ip:port
     https://abc.com
+    ftp://
     """
     regex = re.compile(
-        r'^(?:http)s?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
-        r'localhost|'  # localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-        r'(?::\d+)?'  # optional port
+        r'^(?:http|ftp)s?://' # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
+        r'localhost|' #localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+        r'(?::\d+)?' # optional port
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     if addr and isinstance(addr, (str, unicode)):
         if regex.match(addr):
@@ -62,24 +63,6 @@ def create_redis_engine(redis_url=None):
     if not (redis_url or REDIS_URL):
         raise ValueError("No valid redis connection string")
     return from_url(redis_url or REDIS_URL)
-
-
-def encode_b64(number):
-    """10进制编码为64进制"""
-    try:
-        number = int(number)
-    except:
-        raise
-    table = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_'
-    result = []
-    temp = number
-    if 0 == temp:
-        result.append('0')
-    else:
-        while 0 < temp:
-            result.append(table[temp % 64])
-            temp /= 64
-    return ''.join([x for x in reversed(result)])
 
 
 def decode_b64(string):

@@ -27,7 +27,7 @@ GLOBAL = {
 }
 
 
-REDIS = getenv("shorturl_redis_url")
+REDIS = getenv("shorturl_redis_url") or getenv("pac_redis_url")
 # Redis数据库连接信息，格式：
 # redis://[:password]@host:port/db
 # host,port必填项,如有密码,记得密码前加冒号,比如redis://localhost:6379/0

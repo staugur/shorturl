@@ -19,10 +19,10 @@
 """
 
 import json
-from flask import Flask, request, jsonify, redirect, render_template
+from flask import Flask, request, redirect, render_template
 from version import __version__
-from views import ApiBlueprint
-from utils.tool import err_logger, get_redis_connect, gen_rediskey, get_current_timestamp, dfr, reduction_url
+from utils.tool import err_logger, get_redis_connect, gen_rediskey, \
+    get_current_timestamp, dfr, reduction_url
 
 __author__ = 'staugur'
 __email__ = 'staugur@saintic.com'
@@ -32,22 +32,10 @@ __date__ = '2019-03-19'
 # 初始化定义application
 app = Flask(__name__)
 
-# 注册蓝图
-app.register_blueprint(ApiBlueprint, url_prefix="/api")
-
-
-# 添加模板上下文变量
-@app.context_processor
-def GlobalTemplateVariables():
-    data = {"Version": __version__, "Author": __author__, "Email": __email__}
-    return data
-
-
 @app.route("/")
 def index():
     """首页跳转到开放平台"""
     return redirect("https://open.saintic.com/openservice/Shorturl/", code=302)
-
 
 @app.route("/<shorten>")
 def go(shorten):
@@ -83,30 +71,6 @@ def go(shorten):
                 return render_template("go.html", title=u"短网址已禁用", keyword=u"禁用", msg=u"由于某些原因，您的短网址已经被系统禁用，您可以尝试解封或重新生成短网址！")
     else:
         return render_template("go.html", title=u"短网址错误", keyword=res["code"], msg=res["msg"])
-
-
-@app.errorhandler(500)
-def server_error(error=None):
-    if error:
-        err_logger.error(error, exc_info=True)
-    return jsonify(dict(code=500, msg="Server Error")), 500
-
-
-@app.errorhandler(404)
-def not_found(error=None):
-    return jsonify(dict(code=404, msg='Not Found: ' + request.url)), 404
-
-
-@app.errorhandler(403)
-def Permission_denied(error=None):
-    return jsonify(dict(code=403, msg="Authentication failed, permission denied.")), 403
-
-
-@app.after_request
-def after_request(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    return response
-
 
 if __name__ == '__main__':
     from config import GLOBAL
