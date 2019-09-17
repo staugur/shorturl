@@ -20,7 +20,6 @@
 
 import json
 from flask import Flask, request, redirect, render_template
-from version import __version__
 from utils.tool import err_logger, get_redis_connect, gen_rediskey, \
     get_current_timestamp, dfr, reduction_url
 
@@ -35,7 +34,7 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     """首页跳转到开放平台"""
-    return redirect("https://open.saintic.com/openservice/Shorturl/", code=302)
+    return redirect("https://open.saintic.com/openservice/shorturl/", code=302)
 
 @app.route("/<shorten>")
 def go(shorten):

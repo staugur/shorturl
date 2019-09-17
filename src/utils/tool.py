@@ -18,8 +18,7 @@ from config import REDIS as REDIS_URL
 from redis.exceptions import RedisError
 
 
-logger = Logger("sys").getLogger
-err_logger = Logger("error").getLogger
+logger = err_logger = Logger("error").getLogger
 shorten_pat = re.compile(r'^[a-zA-Z\_][0-9a-zA-Z\_\.\-]{1,31}$')
 get_redis_connect = from_url(REDIS_URL)
 
@@ -142,7 +141,7 @@ def dfr(res, default='en-US'):
             try:
                 new = trans[language.lower()][msg]
             except KeyError, e:
-                logger.warn(e)
+                err_logger.debug(e)
             else:
                 res["msg"] = new
     return res
