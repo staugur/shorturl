@@ -1,5 +1,0 @@
-Flask>=1.0.2
-redis>=2.6.0
-setproctitle
-gevent
-gunicorn

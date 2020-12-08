@@ -1,40 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-    satic.shorturl
-    ~~~~~~~~~~~~~~
-
-    Entrance
-
-    Docstring conventions:
-    http://flask.pocoo.org/docs/0.10/styleguide/#docstrings
-
-    Comments:
-    http://flask.pocoo.org/docs/0.10/styleguide/#comments
-
-    Cache:
-    http://docs.jinkan.org/docs/flask/patterns/caching.html
-
-    :copyright: (c) 2019 by staugur.
-    :license: MIT, see LICENSE for more details.
-"""
 
 import json
 from flask import Flask, request, redirect, render_template
 from utils.tool import err_logger, get_redis_connect, gen_rediskey, \
     get_current_timestamp, dfr, reduction_url
 
-__author__ = 'staugur'
-__email__ = 'staugur@saintic.com'
-__doc__ = 'Simple short url service'
-__date__ = '2019-03-19'
-
 # 初始化定义application
 app = Flask(__name__)
+
 
 @app.route("/")
 def index():
     """首页跳转到开放平台"""
     return redirect("https://open.saintic.com/openservice/shorturl/", code=302)
+
 
 @app.route("/<shorten>")
 def go(shorten):
@@ -70,6 +49,7 @@ def go(shorten):
                 return render_template("go.html", title=u"短网址已禁用", keyword=u"禁用", msg=u"由于某些原因，您的短网址已经被系统禁用，您可以尝试解封或重新生成短网址！")
     else:
         return render_template("go.html", title=u"短网址错误", keyword=res["code"], msg=res["msg"])
+
 
 if __name__ == '__main__':
     from config import GLOBAL

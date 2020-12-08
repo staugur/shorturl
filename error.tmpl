@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="author" content="staugur" />
     <meta name="keywords" content="saintic,satic,短网址,api">
-    <meta name="description" content="satic.shorturl，是一个支持API、可匿名、加密的短网址服务。">
-    <title>{{ title }} | SaintIC - 诏预开放平台</title>
-    <link href="https://img.saintic.com/cdn/images/favicon-32.png" rel="icon" type="image/x-icon" />
-    <link href="https://img.saintic.com/cdn/images/favicon-32.png" rel="shortcut icon" type="image/x-icon" />
+    <meta name="description" content="satic.cn是一个支持API、可匿名、加密的短网址服务。">
+    <title>{{ .Title }} | SaintIC - 诏预开放平台</title>
+    <link href="https://static.saintic.com/cdn/images/favicon-32.png" rel="icon" type="image/x-icon" />
+    <link href="https://static.saintic.com/cdn/images/favicon-32.png" rel="shortcut icon" type="image/x-icon" />
     <style>
         * {
-            font-family: "Microsoft Yahei";
+            font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "MicrosoftYaHei", "WenQuanYi Micro Hei", sans-serif;
             margin: 0;
             font-weight: lighter;
             text-decoration: none;
@@ -20,8 +20,7 @@
             line-height: 2.2em;
         }
 
-        html,
-        body {
+        html, body {
             height: 100%;
         }
 
@@ -45,9 +44,9 @@
                 <table cellspacing="0" cellpadding="0">
                     <tr>
                         <td>
-                            <h1>{{ keyword }}</h1>
+                            <h1>{{ .Code }}</h1>
                             <h3>-- 哎吆 --</h3>
-                            <p>{{ msg }}
+                            <p>{{ .Msg }}
                                 <br />
                                 <a href="/">返回主页</a>
                             </p>
