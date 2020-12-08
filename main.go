@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
@@ -84,13 +85,14 @@ func bindRoute(w http.ResponseWriter, r *http.Request) {
 		shorten := strings.TrimLeft(path, "/")
 		fmt.Println(shorten)
 		res, err := reduction(shorten, rc)
+		fmt.Println(res)
 		if err != nil {
 			fmt.Println(err)
 			renderErrPage(w, tplInfo{"程序错误", 500, err.Error()})
 			return
 		}
 		if res.code == 200 {
-			renderRedirect(shorten, w, r)
+			renderRedirect(res, shorten, w, r)
 
 		} else {
 			renderErrPage(w, tplInfo{"短网址错误", res.code, res.msg})
@@ -107,7 +109,7 @@ func renderErrPage(w http.ResponseWriter, data tplInfo) {
 	tmpl.Execute(w, data)
 }
 
-func renderRedirect(shorten string, w http.ResponseWriter, r *http.Request) {
+func renderRedirect(res apiResp, shorten string, w http.ResponseWriter, r *http.Request) {
 	ip := r.Header.Get("X-Real-Ip")
 	if ip == "" {
 		ip = strings.Split(r.RemoteAddr, ":")[0]
@@ -116,10 +118,11 @@ func renderRedirect(shorten string, w http.ResponseWriter, r *http.Request) {
 		"ip":      ip,
 		"agent":   r.Header.Get("User-Agent"),
 		"referer": r.Header.Get("Referer"),
-		"ctime":   string(nowTimestamp()),
+		"ctime":   fmt.Sprintf("%d", nowTimestamp()),
 		"shorten": shorten,
 		"origin":  "html",
 	}
+	accessJSON, _ := json.Marshal(accessData)
 	countKey := genRedisKey("pv", shorten)
 	shorturlKey := genRedisKey("s", shorten)
 	globalInfoKey := genRedisKey("global")
@@ -128,7 +131,12 @@ func renderRedirect(shorten string, w http.ResponseWriter, r *http.Request) {
 	pipe := rc.TxPipeline()
 	pipe.HIncrBy(ctx, globalInfoKey, "reduction", 1)
 	pipe.HSet(ctx, shorturlKey, "atime", nowTimestamp())
-	pipe.RPush(ctx, countKey, accessData)
+	pipe.RPush(ctx, countKey, accessJSON)
 	pipe.Exec(ctx)
 
+	if res.data["status"] == "1" {
+		http.Redirect(w, r, res.data["longurl"], 302)
+	} else {
+		renderErrPage(w, tplInfo{"短网址已禁用", 400, "由于某些原因，您的短网址已经被系统禁用，您可以尝试解封或重新生成短网址！"})
+	}
 }

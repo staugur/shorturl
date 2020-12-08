@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -20,6 +21,7 @@ func reduction(shorten string, rc *redis.Client) (res apiResp, err error) {
 	ctx := context.Background()
 	data, err := rc.HGetAll(ctx, genRedisKey("s", shorten)).Result()
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	if longurl, ok := data["long_url"]; ok {
