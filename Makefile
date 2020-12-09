@@ -18,6 +18,9 @@ gotool:
 build:
 	go build ${LDFLAGS} -o $(BINARY) && chmod +x $(BINARY)
 
+docker:
+	docker build -t staugur/shorturl .
+
 dev:
 	@echo Starting service...
 	@go run ./

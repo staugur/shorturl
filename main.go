@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/go-redis/redis/v8"
@@ -32,7 +33,7 @@ var (
 func init() {
 	flag.BoolVar(&h, "h", false, "show help and exit")
 	flag.BoolVar(&v, "v", false, "show version and exit")
-	flag.StringVar(&host, "host", "127.0.0.1", "set http listen host")
+	flag.StringVar(&host, "host", "0.0.0.0", "set http listen host")
 	flag.IntVar(&port, "port", 16001, "set http listen port")
 	flag.StringVar(&redisurl, "redis", "", "set redis url")
 }
@@ -56,6 +57,19 @@ func startServer() {
 		fmt.Println("No valid redis url")
 		return
 	}
+	envhost := os.Getenv("shorturl_host")
+	envport := os.Getenv("shorturl_port")
+	if envhost != "" {
+		host = envhost
+	}
+	if envport != "" {
+		envport, err := strconv.Atoi(envport)
+		if err != nil {
+			fmt.Println("Invalid environment shorturl_port")
+			return
+		}
+		port = envport
+	}
 	opt, err := redis.ParseURL(redisurl)
 	if err != nil {
 		fmt.Println(err)
@@ -71,11 +85,6 @@ func startServer() {
 
 func bindRoute(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
-
-	fmt.Println(path)
-	fmt.Println(r.RemoteAddr)
-	fmt.Println(r.Header)
-
 	if path == "/" {
 		url := "https://open.saintic.com/openservice/shorturl/"
 		http.Redirect(w, r, url, 302)
@@ -83,9 +92,7 @@ func bindRoute(w http.ResponseWriter, r *http.Request) {
 		renderErrPage(w, tplInfo{"地址错误", 404, "嵌套层级过多"})
 	} else {
 		shorten := strings.TrimLeft(path, "/")
-		fmt.Println(shorten)
 		res, err := reduction(shorten, rc)
-		fmt.Println(res)
 		if err != nil {
 			fmt.Println(err)
 			renderErrPage(w, tplInfo{"程序错误", 500, err.Error()})
@@ -101,7 +108,8 @@ func bindRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 func renderErrPage(w http.ResponseWriter, data tplInfo) {
-	tmpl, err := template.ParseFiles("./error.tmpl")
+	tpl := `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="author" content="staugur"><meta name="keywords" content="saintic,satic,短网址,api"><meta name="description" content="satic.cn是一个支持API、可匿名、加密的短网址服务。"><title>{{ .Title }} | SaintIC - 诏预开放平台</title><link href="https://static.saintic.com/cdn/images/favicon-32.png" rel="icon" type="image/x-icon"><link href="https://static.saintic.com/cdn/images/favicon-32.png" rel="shortcut icon" type="image/x-icon"><style>*{font-family:"Helvetica Neue",Helvetica,Arial,"PingFang SC","Hiragino Sans GB","Heiti SC",MicrosoftYaHei,"WenQuanYi Micro Hei",sans-serif;margin:0;font-weight:lighter;text-decoration:none;text-align:center;line-height:2.2em}body,html{height:100%}h1{font-size:100px;line-height:1em}table{width:100%;height:100%;border:0}</style></head><body><table cellspacing="0" cellpadding="0"><tr><td><table cellspacing="0" cellpadding="0"><tr><td><h1>{{ .Code }}</h1><h3>-- 哎吆 --</h3><p>{{ .Msg }}<br><a href="/">返回主页</a></p></td></tr></table></td></tr></table></body></html>`
+	tmpl, err := template.New("errpage").Parse(tpl)
 	if err != nil {
 		fmt.Println("create template failed, err:", err)
 		return
@@ -137,6 +145,6 @@ func renderRedirect(res apiResp, shorten string, w http.ResponseWriter, r *http.
 	if res.data["status"] == "1" {
 		http.Redirect(w, r, res.data["longurl"], 302)
 	} else {
-		renderErrPage(w, tplInfo{"短网址已禁用", 400, "由于某些原因，您的短网址已经被系统禁用，您可以尝试解封或重新生成短网址！"})
+		renderErrPage(w, tplInfo{"短网址已禁用", 404, "由于某些原因，您的短网址已经被系统禁用，您可以尝试解封或重新生成短网址！"})
 	}
 }
