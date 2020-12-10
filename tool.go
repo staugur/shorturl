@@ -33,7 +33,7 @@ func reduction(shorten string, rc *redis.Client) (res apiResp, err error) {
 			"realname": data["realname"],
 		}}
 	} else {
-		res = apiResp{code: 404, msg: "Not found shorten"}
+		res = apiResp{code: 404, msg: "未发现短网址"}
 	}
 	return res, nil
 }

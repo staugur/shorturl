@@ -15,7 +15,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-const version = "0.3.0"
+const version = "0.3.1"
 
 var (
 	h        bool
@@ -79,7 +79,7 @@ func startServer() {
 	rc = redis.NewClient(opt)
 	http.HandleFunc("/", bindRoute)
 	listen := fmt.Sprintf("%s:%d", host, port)
-	log.Println("Http listen on " + listen)
+	log.Println("HTTP listen on " + listen)
 	log.Fatal(http.ListenAndServe(listen, nil))
 }
 
