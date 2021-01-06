@@ -15,7 +15,7 @@ gotool:
 	go fmt ./
 	go vet ./
 
-build:
+build: gotool
 	go build ${LDFLAGS} -o $(BINARY) && chmod +x $(BINARY)
 
 docker:

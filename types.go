@@ -1,9 +1,10 @@
 package main
 
 type tplInfo struct {
-	Title string
-	Code  int16
-	Msg   string
+	Title       string
+	Code        int16
+	Msg         string
+	DomainTitle string
 }
 
 type apiResp struct {
