@@ -1,24 +1,17 @@
+ARG buildos=golang:1.17.2-alpine
+ARG runos=scratch
+
 # -- build dependencies with alpine --
-FROM golang:alpine AS builder
-
-ENV GO111MODULE=on \
-    CGO_ENABLED=0 \
-    GOOS=linux \
-    GOARCH=amd64 \
-    shorturl_host=0.0.0.0
-
+FROM $buildos AS builder
 WORKDIR /build
-
 COPY . .
+ARG goproxy
+ARG TARGETARCH
+RUN if [ "x$goproxy" != "x" ]; then go env -w GOPROXY=${goproxy},direct; fi ; \
+    CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -ldflags "-s -w -X main.built=$(date -u '+%Y-%m-%dT%H:%M:%SZ')" .
 
-RUN go env -w GOPROXY=https://goproxy.cn,direct && \
-    go build -ldflags "-s -w -X main.built=$(date -u '+%Y-%m-%dT%H:%M:%SZ')" -o shorturl .
-
-# run application with a small image
-FROM scratch
-
+# -- run application with a small image --
+FROM $runos
 COPY --from=builder /build/shorturl /bin/
-
-EXPOSE 16001
-
+EXPOSE 17000
 ENTRYPOINT ["shorturl"]

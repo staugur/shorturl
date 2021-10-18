@@ -15,7 +15,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-const version = "0.3.2"
+const version = "0.3.3"
 
 var (
 	h           bool
@@ -36,7 +36,7 @@ func init() {
 	flag.BoolVar(&h, "h", false, "show help and exit")
 	flag.BoolVar(&v, "v", false, "show version and exit")
 	flag.StringVar(&host, "host", "0.0.0.0", "http listen host")
-	flag.IntVar(&port, "port", 16001, "http listen port")
+	flag.IntVar(&port, "port", 17000, "http listen port")
 	flag.StringVar(&redisurl, "redis", "", "redis url, format: redis://:<password>@<host>:<port>/<db>")
 	flag.StringVar(&domainTitle, "title", "SaintIC - 诏预开放平台", "domain title suffix")
 	flag.StringVar(&homePage, "home", "https://open.saintic.com/openservice/shorturl/", "home page for redirect")
