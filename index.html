@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="en">
+    <!--<![endif]-->
+
+    <head>
+        <meta charset="utf-8" />
+
+        <title>{{ .DomainTitle }}</title>
+
+        <!-- Mobile viewport optimized: h5bp.com/viewport -->
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"
+        />
+
+        <!-- Style Sheet-->
+        <style>
+            /* BASIC STYLES */
+            html {
+                height: 100%;
+            }
+            body {
+                background: #fff;
+                color: #3b3b3b;
+                font: 13px Arial, Helvetica, sans-serif;
+                overflow-x: hidden;
+                height: 100%;
+            }
+            html,
+            body,
+            footer,
+            header,
+            section {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                font-size: 100%;
+                font: inherit;
+                vertical-align: baseline;
+            }
+            footer,
+            header,
+            menu,
+            nav,
+            section {
+                display: block;
+            }
+
+            h1 {
+                font-size: 40px;
+            }
+            h2 {
+                font-size: 24px;
+            }
+            h3 {
+                font-size: 18px;
+            }
+            h4 {
+                font-size: 14px;
+            }
+            h5 {
+                font-size: 12px;
+            }
+            h6 {
+                font-size: 10px;
+            }
+
+            ::-moz-selection {
+                background: #fe57a1;
+                color: #fff;
+                text-shadow: none;
+            }
+            ::selection {
+                background: #fe57a1;
+                color: #fff;
+                text-shadow: none;
+            }
+            a {
+                text-decoration: none;
+            }
+
+            .button {
+                display: inline-block;
+                text-align: center;
+                padding: 20px 40px;
+                font-family: 'RobotoBold', Arial, Helvetica, sans-serif;
+                border-radius: 25px;
+            }
+            .button_slider {
+                position: absolute;
+                margin-top: 189px;
+                left: 40%;
+                text-align: center;
+                padding: 20px 40px;
+                font-family: 'RobotoBold', Arial, Helvetica, sans-serif;
+                border-radius: 25px;
+            }
+            .button.red {
+                background: #fd4239;
+                color: #99100a;
+            }
+            .button_slider.red {
+                background: #fd4239;
+                color: #99100a;
+            }
+            .button.blue {
+                background: #08afc6;
+                color: #115c66;
+                margin-left: -20px !important;
+            }
+
+            section {
+                overflow: hidden;
+            }
+
+            .hidden {
+                visibility: hidden;
+                display: none;
+            }
+
+            /* HEADERS */
+            .header-wrapper {
+                width: 100%;
+                height: auto;
+            }
+            .header-top {
+                width: 100%;
+                height: 100%;
+                position: realitve;
+                margin-bottom: -53px;
+            }
+            .header-page {
+                height: 100%;
+                max-height: 500px;
+            }
+            .header-wrapper header {
+                max-width: 960px;
+                margin: 0px auto;
+                text-align: center;
+            }
+            .header-wrapper header h1 {
+                font-family: 'RobotoRegular', Arial, Helvetica, sans-serif;
+                margin-bottom: 25px;
+            }
+            .header-wrapper header h1 strong {
+                font-family: 'RobotoBold', Arial, Helvetica, sans-serif;
+            }
+
+            .header-wrapper header > p {
+                font: 15px 'Roboto', Arial, Helvetica, sans-serif;
+                margin-bottom: 140px;
+            }
+
+            .header-main header {
+                max-height: 520px;
+                padding: 100px 0px 0px;
+                max-width: 960px;
+            }
+            .header-main header .button {
+                margin: 0;
+            }
+            .header-main header div {
+                margin-top: 50px;
+            }
+            .header-main header div .tw {
+                font-size: 12px;
+            }
+            .header-main header div .fb {
+                font-size: 12px;
+            }
+
+            .header-two {
+                margin-bottom: 75px;
+            }
+            .header-two header {
+                height: 400px;
+                padding: 100px 0px 0px;
+            }
+            .header-two header h1 span {
+                border-top: 1px solid #fff;
+                padding: 10px 0px 0px;
+                display: inline-block;
+            }
+
+            .header-two header > p {
+                text-transform: uppercase;
+            }
+
+            /* FOOTER */
+            .footer-wrapper {
+                background: #000;
+                width: 100%;
+            }
+            .footer-wrapper footer {
+                max-width: 960px;
+                margin: 0px auto;
+                border-top: 1px solid #000;
+                padding: 20px 0px 0px;
+                overflow: hidden;
+            }
+            .footer-wrapper footer p {
+                color: #fff;
+                text-align: center;
+                font: 11px 'RobotoLight', Arial, Helvetica, sans-serif;
+                margin: 0px 0px 20px;
+            }
+            .footer-wrapper footer p strong {
+                font-family: 'RobotoBold', Arial, Helvetica, sans-serif;
+            }
+            .footer-wrapper footer p a {
+                color: rgb(196, 196, 196);
+            }
+            .footer-wrapper footer p a:hover {
+                color: #999;
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- HEADER -->
+        <div id="home" class="header-wrapper header-main header-top">
+            <header>
+                <h1>shorturl</h1>
+
+                <p>简单的短网址跳转服务</p>
+
+                <div>
+                    <a
+                        href="https://github.com/staugur/shorturl"
+                        class="button blue"
+                        >GitHub</a
+                    >
+
+                    {{ if .GotoURL }}
+                    <a href="{{ .GotoURL }}" class="button red">进入服务</a>
+                    {{ end }}
+                </div>
+            </header>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer-wrapper">
+            <footer>
+                <p>
+                    {{ if .ICP }}
+                    <a href="https://beian.miit.gov.cn/" target="_blank"
+                        >{{ .ICP }}</a
+                    >
+                    {{ end }} Copyright &copy;
+                    <script>
+                        document.write(new Date().getFullYear())
+                    </script>
+                    Powered by
+                    <a href="https://github.com/staugur/shorturl">shorturl</a>
+                </p>
+            </footer>
+        </div>
+    </body>
+</html>

@@ -1,7 +1,24 @@
+/*
+   Copyright 2021 Hiroshi.tao
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 package main
 
 import (
 	"context"
+	_ "embed" // embed static file
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -15,7 +32,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-const version = "0.3.3"
+const version = "0.4.0"
 
 var (
 	h           bool
@@ -24,7 +41,9 @@ var (
 	port        int
 	redisurl    string
 	domainTitle string
-	homePage    string
+	icp         string
+	goToURL     string
+	renderIndex bool
 
 	commitID string // git commit id when building
 	built    string // UTC time when building
@@ -32,14 +51,20 @@ var (
 	rc *redis.Client
 )
 
+//RtfdCFG 配置文件示例内容
+//go:embed index.html
+var indexTmpl []byte
+
 func init() {
 	flag.BoolVar(&h, "h", false, "show help and exit")
 	flag.BoolVar(&v, "v", false, "show version and exit")
 	flag.StringVar(&host, "host", "0.0.0.0", "http listen host")
 	flag.IntVar(&port, "port", 17000, "http listen port")
 	flag.StringVar(&redisurl, "redis", "", "redis url, format: redis://:<password>@<host>:<port>/<db>")
-	flag.StringVar(&domainTitle, "title", "SaintIC - 诏预开放平台", "domain title suffix")
-	flag.StringVar(&homePage, "home", "https://open.saintic.com/openservice/shorturl/", "home page for redirect")
+	flag.StringVar(&domainTitle, "title", "SaintIC - 诏预开放平台", "域名标题后缀")
+	flag.StringVar(&icp, "icp", "", "备案号（首页渲染）")
+	flag.StringVar(&goToURL, "goto", "https://open.saintic.com/openservice/shorturl/", "real page for redirect")
+	flag.BoolVar(&renderIndex, "renderIndex", false, "if true, generate index page, otherwise redirect goto url")
 }
 
 func main() {
@@ -54,7 +79,7 @@ func main() {
 }
 
 func newTplInfo(title string, code int16, msg string) tplInfo {
-	return tplInfo{title, code, msg, domainTitle}
+	return tplInfo{title, code, msg, domainTitle, icp, goToURL, renderIndex}
 }
 
 func startServer() {
@@ -94,7 +119,17 @@ func startServer() {
 func bindRoute(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	if path == "/" {
-		http.Redirect(w, r, homePage, 302)
+		if renderIndex {
+			tmpl, err := template.New("index").Parse(string(indexTmpl))
+			if err != nil {
+				fmt.Println("render index template failed, err:", err)
+				return
+			}
+			tmpl.Execute(w, newTplInfo("", 0, ""))
+
+		} else {
+			http.Redirect(w, r, goToURL, 302)
+		}
 	} else if strings.Count(path, "/") > 1 {
 		renderErrPage(w, newTplInfo("地址错误", 404, "嵌套层级过多"))
 	} else {
@@ -138,7 +173,7 @@ func renderErrPage(w http.ResponseWriter, data tplInfo) {
 </html>`
 	tmpl, err := template.New("errpage").Parse(tpl)
 	if err != nil {
-		fmt.Println("create template failed, err:", err)
+		fmt.Println("create errpage template failed, err:", err)
 		return
 	}
 	tmpl.Execute(w, data)
